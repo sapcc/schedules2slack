@@ -1,14 +1,15 @@
-# schedules2slack
+# schedules2slack (ugly-beta-version)
 
-Syncs user from ServiceNow Schedules via CPI people on shift from Schedules to slack groups.
-Heir of pagerduty2slack.
+Syncs from ServiceNow Schedules of a AssignmentGroup People on shift to slack groups.
+Heir of schedules2slack.
+
+
+base64 -b 0 -i CCGRNHOUSE_P.pfx -o CCGRNHOUSE_P.pfx_b64
+base64 --decode -i CCGRNHOUSE_P.pfx_b64 -o CCGRNHOUSE_P.pfx_b64_decode
 
 ## Feature List
 
 * We use a cron format to schedule each sync jobs
-* handover time frame for schedule sync possible
-* there is also the possibility to check on if a phone is set as contact
-* disable a slack
 
 ## Some words on the job config
 
@@ -33,15 +34,12 @@ jobs:
         syncStyle: OnlyPrimary | AllActiveLayers (default)
       syncObjects:
         slackGroupHandle: "onduty-team-no1"
-        groupIds:
-          - "id from url"
-          - "id from url"
+        groupId: "id from url"
     - crontabExpressionForRepetition: 5 7,8,13,14,19,20 \* \* \*
       syncOptions:
         slackHandleNoOneOnShiftStrategy: disable --> LastOnShift | disable (default)
         syncStyle: OnlyPrimary | AllActiveLayers (default)
       syncObjects:
         slackGroupHandle: "onduty-team-no2"
-        groupIds:
-          - "id from url"
+        groupIds:  groupId: "id from url"
 

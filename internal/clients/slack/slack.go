@@ -240,7 +240,7 @@ func groupContainsUser(groupUserIDs []string, user slackgo.User) bool {
 	return false
 }
 
-// matchPDToSlackUsers returns a list of valid Slack users that match the list of PagerDuty users
+// matchPDToSlackUsers returns a list of valid Slack users that match the list of users
 func (c *Client) matchToSlackUsers(members []servicenow.Member) []slackgo.User {
 	var matchedSlackUsers []slackgo.User
 	for _, m := range members {

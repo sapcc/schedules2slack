@@ -28,7 +28,7 @@ type SyncJob interface {
 	JobType() string
 	// SlackHandle of the slack user group
 	SlackHandle() string
-	// PagerDutyObjects returns the schedule/teams synced
+	// ScheduleObjects returns the schedule/teams synced
 	ScheduleObjects() []config.SyncObject
 	// SlackInfoMessageBody custom to the Job
 	SlackInfoMessageBody() *slack.TextBlockObject

@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/tls"
+	"encoding/base64"
 	"encoding/pem"
 	"flag"
 	"fmt"
@@ -126,11 +127,22 @@ func initLogging(logLevel string) {
 
 func convert(cfg *config.ServiceNowConfig) {
 
-	// read PKCS#12 file
-	cert, err := os.ReadFile(cfg.PfxCertFile)
-	if err != nil {
-		fmt.Println("Cert Error:", err)
-		return
+	var cert []byte
+	var err error
+
+	if cfg.PfxCertBase64 != "" {
+		cert, err = base64.StdEncoding.DecodeString(cfg.PfxCertBase64)
+		if err != nil {
+			fmt.Println("Cert Error from base64 env string:", err)
+			return
+		}
+	} else {
+		// read PKCS#12 file
+		cert, err = os.ReadFile(cfg.PfxCertFile)
+		if err != nil {
+			fmt.Println("Cert Error:", err)
+			return
+		}
 	}
 
 	certificates, err := pkcs12.ToPEM(cert, cfg.PfxCertPassword)

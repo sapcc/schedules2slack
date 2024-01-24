@@ -240,7 +240,7 @@ func PrettyPrint(i interface{}) string {
 	return string(s)
 }
 
-// listOnCallUsers returns unique PagerDuty users for a list of OnCalls
+// listOnCallUsers returns unique list of users for OnCalls
 func (c *Client) listOnCallUsers(onCalls []Member) (users []Member) {
 	//opts := pd.GetUserOptions{Includes: []string{"contact_methods"}}
 

@@ -44,6 +44,7 @@ type SlackConfig struct {
 type ServiceNowConfig struct {
 	// Token to authenticate
 	PfxCertFile       string
+	PfxCertBase64     string
 	PfxCertPassword   string
 	APIendpoint       string `yaml:"apiEndpoint"`
 	APIGetShifts      string
@@ -125,12 +126,17 @@ func loadEnvVars(cfg *Config) error {
 	}
 
 	cfg.ServiceNow.PfxCertFile = os.Getenv("SERVICENOW_API_CERT_PKC12")
-	if cfg.ServiceNow.PfxCertFile == "" {
+	/*if cfg.ServiceNow.PfxCertFile == "" {
 		return fmt.Errorf("env variable `SERVICENOW_API_CERT_PKC12` is not set")
+	}*/
+
+	cfg.ServiceNow.PfxCertBase64 = os.Getenv("SERVICENOW_API_CERT_PKC12_B64")
+	if cfg.ServiceNow.PfxCertFile == "" && cfg.ServiceNow.PfxCertBase64 == "" {
+		return fmt.Errorf("env variable `SERVICENOW_API_CERT_PKC12` or `SERVICENOW_API_CERT_PKC12_B64` has to be set")
 	}
 
 	cfg.ServiceNow.PfxCertPassword = os.Getenv("SERVICENOW_API_CERT_PKC12_PWD")
-	if cfg.ServiceNow.PfxCertFile == "" {
+	if cfg.ServiceNow.PfxCertPassword == "" {
 		return fmt.Errorf("env variable `SERVICENOW_API_CERT_PKC12_PWD` is not set")
 	}
 
