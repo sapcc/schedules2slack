@@ -6,6 +6,6 @@ vendor/**
 # files
 .editorconfig
 *.test
-
+__debug*
 /testing/
 /build/

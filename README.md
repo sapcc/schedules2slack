@@ -13,6 +13,18 @@ base64 --decode -i CCGRNHOUSE_P.pfx_b64 -o CCGRNHOUSE_P.pfx_b64_decode
 
 ## Some words on the job config
 
+### env values
+
+SLACK_BOT_TOKEN=xoxb-xxxxx
+SLACK_USER_TOKEN=xoxp-xxxx
+SLACK_SOCKET_TOKEN=xapp-xxxx
+SERVICENOW_API_CERT_PKC12_PWD=<secret>
+SERVICENOW_API_CERT_PKC12_B64=<base64string> or
+SERVICENOW_API_CERT_PKC12=cert_file.pfx
+
+
+### config file
+
 if you're not a cron hero, check <https://crontab.guru/> as example.
 
     ┌───────────── minute (0 - 59)
@@ -26,7 +38,7 @@ if you're not a cron hero, check <https://crontab.guru/> as example.
     \* \* \* \* \* command to execute
 
 jobs:
-  schedules-to-slack-group:
+  servicenow-schedules-on-duty-to-slack-group:
 
     - crontabExpressionForRepetition: 5 7,8,13,14,19,20 \* \* \*
       syncOptions:

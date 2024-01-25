@@ -13,7 +13,7 @@ import (
 	"github.com/PagerDuty/go-pagerduty"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/sapcc/pagerduty2slack/internal/config"
+	"github.com/sapcc/schedules2slack/internal/config"
 )
 
 type expectation struct {
