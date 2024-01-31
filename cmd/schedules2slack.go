@@ -12,12 +12,11 @@ import (
 	"time"
 
 	"github.com/robfig/cron/v3"
-	log "github.com/sirupsen/logrus"
-
 	servicenow "github.com/sapcc/schedules2slack/internal/clients/servicenow"
 	slackclient "github.com/sapcc/schedules2slack/internal/clients/slack"
 	config "github.com/sapcc/schedules2slack/internal/config"
 	jobs "github.com/sapcc/schedules2slack/internal/jobs"
+	log "github.com/sirupsen/logrus"
 	"golang.org/x/crypto/pkcs12"
 )
 
@@ -126,7 +125,6 @@ func initLogging(logLevel string) {
 }
 
 func convert(cfg *config.ServiceNowConfig) {
-
 	var cert []byte
 	var err error
 
@@ -146,22 +144,9 @@ func convert(cfg *config.ServiceNowConfig) {
 	}
 
 	certificates, err := pkcs12.ToPEM(cert, cfg.PfxCertPassword)
-	//print(b, err)
-
-	/*// Erstelle einen TLS-Konfigurationscontainer
-	certificates, err := tls.X509KeyPair(cert, []byte(cfg.PfxCertPassword))
 	if err != nil {
-		fmt.Println("Creating Cert Pair failed:", err)
-		return
+		log.Fatal(err)
 	}
-	*/
-	// Füge das Zertifikat zum Wurzel-Zertifikats-Pool hinzu
-	/*roots := x509.NewCertPool()
-	ok := roots.AppendCertsFromPEM([]byte(certificates))
-	if !ok {
-		fmt.Println("Error on adding RootCertPool")
-		return
-	}*/
 
 	var pemData []byte
 	for _, b := range certificates {
@@ -175,12 +160,8 @@ func convert(cfg *config.ServiceNowConfig) {
 
 	tlsConfig := &tls.Config{
 		Certificates: []tls.Certificate{pemcert},
+		MinVersion:   tls.VersionTLS12,
 	}
-	/*tlsConfig := &tls.Config{
-		Certificates: []tls.Certificate{cert},
-		RootCAs:      roots,
-	}*/
 
 	cfg.TLSconfig = tlsConfig
-
 }

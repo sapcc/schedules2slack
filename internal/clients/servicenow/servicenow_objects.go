@@ -16,8 +16,8 @@ type Schedule struct {
 	Shifts   []ScheduleShift
 	Members  []Member
 	OnOnCall []Member
-	Id       string
-	GroupId  string
+	ID       string
+	GroupID  string
 }
 
 /*
@@ -35,8 +35,8 @@ type ScheduleShifts struct {
 }
 type ScheduleShift struct {
 	Name    string `json:"name"`
-	Id      string `json:"sys_id"`
-	GroupId string `json:"group_sys_id"`
+	ID      string `json:"sys_id"`
+	GroupID string `json:"group_sys_id"`
 }
 
 /*
@@ -57,10 +57,10 @@ type Members struct {
 }
 type Member struct {
 	Name              string `json:"name"`
-	Id                string `json:"sys_id"`
+	ID                string `json:"sys_id"`
 	Mail              string `json:"user_email"`
 	Contact           string `json:"user_contact_number"`
-	UserId            string `json:"userID"`
+	UserID            string `json:"userID"`
 	Intitials         string `json:"initials"`
 	Avatar            string `json:"avatar"`
 	SlackDisplayValue string
@@ -88,21 +88,21 @@ type WhoIsOnOnCallObjects struct {
 	Members []WhoIsOnOnCallObject `json:"result"`
 }
 type WhoIsOnOnCallObject struct {
-	MemberId string `json:"memberId"`
+	MemberID string `json:"memberId"`
 	//MemberIds          []string `json:"memberIds"`
-	UserId string `json:"userId"`
+	UserID string `json:"userId"`
 	//UserIds            []string `json:"userIds"`
 	Roster string `json:"roster"`
 	Rota   string `json:"rota"`
 	Group  string `json:"group"`
 	//EscalationGroups   []string `json:"escalationGroups"`
-	DeviceId string `json:"deviceId"`
+	DeviceID string `json:"deviceId"`
 	//DeviceIds          []string `json:"deviceIds"`
 	IsDevice           bool    `json:"isDevice"`
 	Order              float32 `json:"order"`
 	IsOverride         bool    `json:"isOverride"`
-	RotationScheduleId string  `json:"rotationScheduleId"`
-	MemberScheduleId   string  `json:"memberScheduleId"`
+	RotationScheduleID string  `json:"rotationScheduleId"`
+	MemberScheduleID   string  `json:"memberScheduleId"`
 }
 
 /*
@@ -131,14 +131,14 @@ type Spans struct {
 type Span struct {
 	Color     string `json:"color"`
 	End       string `json:"end"`
-	GroupId   string `json:"group_id"`
-	Id        string `json:"id"`
-	RosterId  string `json:"roster_id"`
-	RotaId    string `json:"rota_id"`
+	GroupID   string `json:"group_id"`
+	ID        string `json:"id"`
+	RosterID  string `json:"roster_id"`
+	RotaID    string `json:"rota_id"`
 	Start     string `json:"start"`
-	SysId     string `json:"sys_id"`
+	SysID     string `json:"sys_id"`
 	Table     string `json:"table"`
 	TextColor string `json:"textColor"`
 	Title     string `json:"title"` //* : "Firstname Familyname (Ixxxxx) (Primary)",
-	UserId    string `json:"user_id"`
+	UserID    string `json:"user_id"`
 }

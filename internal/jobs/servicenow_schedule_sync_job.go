@@ -21,7 +21,7 @@ func NewScheduleSyncJob(cfg config.ScheduleSync, dryrun bool, sn *servicenow.Cli
 		syncOpts:         cfg.SyncOptions,
 		dryrun:           dryrun,
 		slackHandle:      cfg.SyncObjects.SlackGroupHandle,
-		scheduleGroupId:  cfg.SyncObjects.GroupId,
+		scheduleGroupID:  cfg.SyncObjects.GroupID,
 		schedule:         schedule,
 		servicenowClient: sn,
 		slackClient:      slackClient,
@@ -39,7 +39,7 @@ type ServicenowScheduleToSlackJob struct {
 	servicenowClient *servicenow.Client
 
 	slackHandle        string              // of the target user group
-	scheduleGroupId    string              // IDs of the schedules to sync
+	scheduleGroupID    string              // IDs of the schedules to sync
 	servicenowSchedule servicenow.Schedule // servicenow schedule
 
 	syncjob SyncJob
@@ -56,7 +56,7 @@ func (s *ServicenowScheduleToSlackJob) Run() error {
 		return err
 	}*/
 
-	groupmember, err := s.servicenowClient.ListScheduleMember(s.scheduleGroupId)
+	groupmember, err := s.servicenowClient.ListScheduleMember(s.scheduleGroupID)
 	if err != nil {
 		s.err = err
 		return err
@@ -66,7 +66,7 @@ func (s *ServicenowScheduleToSlackJob) Run() error {
 
 	/*onCallMember, err := s.servicenowClient.ListOnCallUsers(schedule, s.syncOpts.SyncStyle)*/
 
-	onCallMember, err := s.servicenowClient.ListSpans(s.servicenowSchedule, s.scheduleGroupId)
+	onCallMember, err := s.servicenowClient.ListSpans(s.servicenowSchedule, s.scheduleGroupID)
 	s.servicenowSchedule.OnOnCall = onCallMember
 
 	// get all SLACK users, bcz. we need the SLACK user id and match them with the ldap users
@@ -86,7 +86,7 @@ func (s *ServicenowScheduleToSlackJob) Run() error {
 
 // Name of the job
 func (s *ServicenowScheduleToSlackJob) Name() string {
-	return fmt.Sprintf("job: sync schedule(s) '%s' to slack group: '%s'", s.scheduleGroupId, s.slackHandle)
+	return fmt.Sprintf("job: sync schedule(s) '%s' to slack group: '%s'", s.scheduleGroupID, s.slackHandle)
 }
 
 // Icon returns name of icon to show in Slack messages

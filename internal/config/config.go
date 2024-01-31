@@ -69,7 +69,7 @@ type ScheduleSync struct {
 // SyncObjects Struct
 type SyncObject struct {
 	SlackGroupHandle string `yaml:"slackGroupHandle"`
-	GroupId          string `yaml:"groupId"`
+	GroupID          string `yaml:"groupId"`
 }
 
 // ScheduleSyncOptions SyncOptions Struct

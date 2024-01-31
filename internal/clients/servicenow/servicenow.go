@@ -14,8 +14,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type offsetInHours = time.Duration
-
 // Client wraps the servicenow client.
 type Client struct {
 	cfg *config.ServiceNowConfig
@@ -28,8 +26,8 @@ func NewClient(cfg *config.ServiceNowConfig) (*Client, error) {
 	}
 	return c, nil
 }
-func (c *Client) ListOnCallUsers(s Schedule, layerSyncStyle config.SyncStyle) ([]Member, error) {
 
+func (c *Client) ListOnCallUsers(s Schedule, layerSyncStyle config.SyncStyle) ([]Member, error) {
 	client := &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: c.cfg.TLSconfig,
@@ -37,7 +35,7 @@ func (c *Client) ListOnCallUsers(s Schedule, layerSyncStyle config.SyncStyle) ([
 	}
 
 	for _, shift := range s.Shifts {
-		var url = fmt.Sprintf("%s"+c.cfg.APIGetWhoIsOnCall, c.cfg.APIendpoint, shift.Id, shift.GroupId)
+		var url = fmt.Sprintf("%s"+c.cfg.APIGetWhoIsOnCall, c.cfg.APIendpoint, shift.ID, shift.GroupID)
 		log.Debug(url)
 		response, err := client.Get(url)
 		if err != nil {
@@ -62,14 +60,13 @@ func (c *Client) ListOnCallUsers(s Schedule, layerSyncStyle config.SyncStyle) ([
 
 		for _, who := range result.Members {
 			for _, m := range s.Members {
-				if who.UserId == m.UserId {
+				if who.UserID == m.UserID {
 					s.OnOnCall = append(s.OnOnCall, m)
 					log.Debug(fmt.Sprintf("%s is in oncall!", m.Name))
 				} //else {
 				//	log.Info(fmt.Sprintf("%s not found!", m.Name))
 				//}
 			}
-
 		}
 	}
 
@@ -77,10 +74,8 @@ func (c *Client) ListOnCallUsers(s Schedule, layerSyncStyle config.SyncStyle) ([
 }
 
 func (c *Client) findMemberObjectByString(s Schedule, str string) (Member, error) {
-
 	for _, m := range s.Members {
 		if strings.Contains(str, m.Name) {
-
 			//s.OnOnCall = append(s.OnOnCall, m)
 			log.Debug(fmt.Sprintf("%s is in oncall!", m.Name))
 			return m, nil
@@ -90,7 +85,7 @@ func (c *Client) findMemberObjectByString(s Schedule, str string) (Member, error
 	return Member{}, fmt.Errorf("could find %s in group members", str)
 }
 
-func (c *Client) ListSpans(s Schedule, groupId string) ([]Member, error) {
+func (c *Client) ListSpans(s Schedule, groupID string) ([]Member, error) {
 	client := &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: c.cfg.TLSconfig,
@@ -102,7 +97,7 @@ func (c *Client) ListSpans(s Schedule, groupId string) ([]Member, error) {
 	todaystr := fmt.Sprintf("%04d-%02d-%02d", today.Year(), today.Month(), today.Day())
 	tomorrowstr := fmt.Sprintf("%04d-%02d-%02d", tomorrow.Year(), tomorrow.Month(), tomorrow.Day())
 
-	var url = fmt.Sprintf("%s"+c.cfg.APIGetSpans, c.cfg.APIendpoint, todaystr, groupId, tomorrowstr)
+	var url = fmt.Sprintf("%s"+c.cfg.APIGetSpans, c.cfg.APIendpoint, todaystr, groupID, tomorrowstr)
 	log.Debug(url)
 	response, err := client.Get(url)
 	if err != nil {
@@ -146,18 +141,18 @@ func filterByTimestamp(spans []Span) []Span {
 		tsEnd, err := time.Parse(time.DateTime, span.End)
 		if err != nil {
 			// Handle parsing error if needed
-			fmt.Printf("Error parsing timestamp for document ID %d: %v\n", span.Title, err)
+			fmt.Printf("Error parsing timestamp for document ID %s: %v\n", span.Title, err)
 			continue
 		}
 		tsBegin, err := time.Parse(time.DateTime, span.Start)
 		if err != nil {
 			// Handle parsing error if needed
-			fmt.Printf("Error parsing timestamp for document ID %d: %v\n", span.Title, err)
+			fmt.Printf("Error parsing timestamp for document ID %s: %v\n", span.Title, err)
 			continue
 		}
 
 		// Compare the timestamp with the current time
-		if tsEnd.After(time.Now()) && tsBegin.Before(time.Now()) && span.UserId != "" {
+		if tsEnd.After(time.Now()) && tsBegin.Before(time.Now()) && span.UserID != "" {
 			filteredSpans = append(filteredSpans, span)
 		}
 	}
@@ -166,15 +161,14 @@ func filterByTimestamp(spans []Span) []Span {
 }
 
 // ListOnCallUsers returns the OnCall users being on shift now
-func (c *Client) ListScheduleMember(groupId string) ([]Member, error) {
-
+func (c *Client) ListScheduleMember(groupID string) ([]Member, error) {
 	client := &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: c.cfg.TLSconfig,
 		},
 	}
 
-	var url = fmt.Sprintf("%s"+c.cfg.APIGetGroupMember, c.cfg.APIendpoint, groupId)
+	var url = fmt.Sprintf("%s"+c.cfg.APIGetGroupMember, c.cfg.APIendpoint, groupID)
 	log.Debug(url)
 	response, err := client.Get(url)
 	if err != nil {
@@ -199,15 +193,14 @@ func (c *Client) ListScheduleMember(groupId string) ([]Member, error) {
 }
 
 // TeamMembers returns a schedule for the given name or an error.
-func (c *Client) ListSchedules(scheduleId string) (Schedule, error) {
-
+func (c *Client) ListSchedules(scheduleID string) (Schedule, error) {
 	client := &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: c.cfg.TLSconfig,
 		},
 	}
 
-	var url = fmt.Sprintf("%s"+c.cfg.APIGetShifts, c.cfg.APIendpoint, scheduleId)
+	var url = fmt.Sprintf("%s"+c.cfg.APIGetShifts, c.cfg.APIendpoint, scheduleID)
 	log.Debug(url)
 	response, err := client.Get(url)
 	if err != nil {
@@ -230,16 +223,20 @@ func (c *Client) ListSchedules(scheduleId string) (Schedule, error) {
 
 	s := Schedule{
 		Shifts:  result.Shifts,
-		GroupId: scheduleId,
+		GroupID: scheduleID,
 	}
 
 	return s, nil
 }
 func PrettyPrint(i interface{}) string {
-	s, _ := json.MarshalIndent(i, "", "\t")
+	s, err := json.MarshalIndent(i, "", "\t")
+	if err != nil {
+		return fmt.Sprintf("parsing error: %s", err)
+	}
 	return string(s)
 }
 
+/*
 // listOnCallUsers returns unique list of users for OnCalls
 func (c *Client) listOnCallUsers(onCalls []Member) (users []Member) {
 	//opts := pd.GetUserOptions{Includes: []string{"contact_methods"}}
@@ -256,4 +253,4 @@ func (c *Client) listOnCallUsers(onCalls []Member) (users []Member) {
 		users = append(users, u)
 	}
 	return users
-}
+}*/

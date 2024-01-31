@@ -104,8 +104,8 @@ help: FORCE
 .PHONY: FORCE
 
 docker-build:
-	docker buildx build --platform linux/amd64 . -t ${IMAGE}/schedules2slack:${VERSION}
-	docker buildx build --platform linux/amd64 . -t ${IMAGE}/schedules2slack:latest
+	docker buildx build --platform linux/arm64,linux/amd64 . -t ${IMAGE}/schedules2slack:${VERSION}
+	docker buildx build --platform linux/arm64,linux/amd64 . -t ${IMAGE}/schedules2slack:latest
 docker-push:
 	docker push ${IMAGE}/schedules2slack:${VERSION}
 	docker push ${IMAGE}/schedules2slack:latest
