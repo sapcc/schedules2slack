@@ -62,11 +62,12 @@ func (s *ServicenowScheduleToSlackJob) Run() error {
 		return err
 	}
 	s.servicenowSchedule.Members = groupmember
-	//schedule.OnOnCall = append(groupmember, groupmember...)
-
-	/*onCallMember, err := s.servicenowClient.ListOnCallUsers(schedule, s.syncOpts.SyncStyle)*/
 
 	onCallMember, err := s.servicenowClient.ListSpans(s.servicenowSchedule, s.scheduleGroupID)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
 	s.servicenowSchedule.OnOnCall = onCallMember
 
 	// get all SLACK users, bcz. we need the SLACK user id and match them with the ldap users

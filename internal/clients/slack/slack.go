@@ -70,7 +70,6 @@ func NewClient(cfg *config.SlackConfig) (*Client, error) {
 
 // LoadMasterData singleton master data to speed up
 func (c *Client) LoadMasterData() (err error) {
-
 	var cI = slackgo.GetConversationInfoInput{
 		ChannelID:         c.infoChannelID,
 		IncludeLocale:     true,
@@ -244,7 +243,6 @@ func groupContainsUser(groupUserIDs []string, user slackgo.User) bool {
 func (c *Client) matchToSlackUsers(members []servicenow.Member) []slackgo.User {
 	var matchedSlackUsers []slackgo.User
 	for _, m := range members {
-
 		if m.Name == "" {
 			log.Infof("skipping user %s, name empty", m.Name)
 			continue
@@ -256,7 +254,7 @@ func (c *Client) matchToSlackUsers(members []servicenow.Member) []slackgo.User {
 			}
 			//if strings.EqualFold(m.Name, u.Profile.DisplayName) {
 
-			if extractEmployeeId(m.Name) == strings.ToUpper(u.Name) {
+			if extractEmployeeID(m.Name) == strings.ToUpper(u.Name) {
 				log.Debug(fmt.Sprintf("Found Slack user %s for schedule member %s", u.Profile.DisplayName, m.Name))
 				matchedSlackUsers = append(matchedSlackUsers, u)
 				continue
@@ -271,7 +269,7 @@ func (c *Client) matchToSlackUsers(members []servicenow.Member) []slackgo.User {
 This makes it unusable outside SAP
 need a better way to match Names
 */
-func extractEmployeeId(input string) string {
+func extractEmployeeID(input string) string {
 	// Define the regular expression with a capturing group
 	re := regexp.MustCompile(`([CID]\d{6})`)
 

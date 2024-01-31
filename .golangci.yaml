@@ -4,7 +4,6 @@
 ################################################################################
 
 run:
-  deadline: 3m # 1m by default
   modules-download-mode: readonly
 
 output:
@@ -102,7 +101,6 @@ linters:
     - forbidigo
     - gocritic
     - gofmt
-    - goimports
     - gosec
     - gosimple
     - govet

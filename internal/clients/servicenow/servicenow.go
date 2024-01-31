@@ -9,8 +9,6 @@ import (
 	"time"
 
 	"github.com/sapcc/schedules2slack/internal/config"
-
-	//"github.com/sapcc/schedules2slack/internal/config"
 	log "github.com/sirupsen/logrus"
 )
 
