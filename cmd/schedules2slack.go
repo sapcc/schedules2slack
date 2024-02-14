@@ -16,6 +16,7 @@ import (
 	slackclient "github.com/sapcc/schedules2slack/internal/clients/slack"
 	config "github.com/sapcc/schedules2slack/internal/config"
 	jobs "github.com/sapcc/schedules2slack/internal/jobs"
+	"github.com/sapcc/schedules2slack/internal/metrics"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/crypto/pkcs12"
 )
@@ -29,6 +30,8 @@ func printUsage() {
 }
 
 func main() {
+	go metrics.Run()
+
 	flag.StringVar(&opts.ConfigFilePath, "config", "./config.yml", "Config file path including file name.")
 	flag.BoolVar(&opts.Global.Write, "write", false, "[true|false] write changes? Overrides config setting!")
 	flag.Parse()
@@ -106,6 +109,7 @@ func main() {
 	} else {
 		log.Info("cfg.Global.RunAtStart is set to: ", cfg.Global.RunAtStart)
 	}
+
 }
 
 // initLogging configures the logger

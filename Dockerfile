@@ -13,7 +13,7 @@ LABEL org.opencontainers.image.authors="Tilo Geissler <tilo.geissler@sap.com>"
 LABEL source_repository="https://github.com/sapcc/schedules2slack"
 
 RUN apk add --no-cache ca-certificates
-COPY --from=builder /pkg/ /usr/
+COPY --from=builder /build/ /usr/
 
 ARG BININFO_BUILD_DATE BININFO_COMMIT_HASH BININFO_VERSION
 LABEL source_repository="https://github.com/sapcc/schedules2slack" \
@@ -24,4 +24,4 @@ LABEL source_repository="https://github.com/sapcc/schedules2slack" \
 
 USER nobody:nobody
 WORKDIR /var/empty
-ENTRYPOINT [ "schedules2slack", "-config", "/etc/config/_run_config.yaml" ]
+ENTRYPOINT [ "schedules2slack", "-config", "/etc/config/config.yaml" ]
