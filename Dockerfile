@@ -4,6 +4,7 @@ RUN apk add --no-cache gcc git make musl-dev
 
 COPY . /src
 ARG BININFO_BUILD_DATE BININFO_COMMIT_HASH BININFO_VERSION # provided to 'make install'
+WORKDIR /src
 RUN make -C /src install PREFIX=/pkg
 
 ################################################################################
@@ -13,7 +14,7 @@ LABEL org.opencontainers.image.authors="Tilo Geissler <tilo.geissler@sap.com>"
 LABEL source_repository="https://github.com/sapcc/schedules2slack"
 
 RUN apk add --no-cache ca-certificates
-COPY --from=builder /build/ /usr/
+COPY --from=builder /src/build/ /run/
 
 ARG BININFO_BUILD_DATE BININFO_COMMIT_HASH BININFO_VERSION
 LABEL source_repository="https://github.com/sapcc/schedules2slack" \
@@ -24,4 +25,4 @@ LABEL source_repository="https://github.com/sapcc/schedules2slack" \
 
 USER nobody:nobody
 WORKDIR /var/empty
-ENTRYPOINT [ "schedules2slack", "-config", "/etc/config/config.yaml" ]
+ENTRYPOINT [ "/run/schedules2slack", "-config", "/etc/config/config.yaml" ]

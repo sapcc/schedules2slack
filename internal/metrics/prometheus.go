@@ -41,7 +41,7 @@ func Run() {
 	reg := prometheus.NewRegistry()
 	if err := reg.Register(prometheus.NewGaugeFunc(
 		prometheus.GaugeOpts{
-			Namespace:   "schedule2slack",
+			Namespace:   "schedules2slack",
 			Subsystem:   "",
 			Name:        "last_run_warnings",
 			Help:        "Number of Warnings in last run.",
@@ -65,7 +65,7 @@ func Run() {
 			`<html>
 			<head><title>schedul2slack synchronziser</title></head>
 			<body>
-			<h1>schedule2slack</h1>
+			<h1>schedules2slack</h1>
 			<p><a href="/metrics">Metrics</a></p>
             <p><a href="/live">live probe</a></p>
             <p><a href="/ready">ready probe</a></p>
