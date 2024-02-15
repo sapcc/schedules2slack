@@ -3,7 +3,7 @@ module github.com/sapcc/schedules2slack
 go 1.21
 
 require (
-	github.com/prometheus/client_golang v1.11.0
+	github.com/prometheus/client_golang v1.11.1
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/sapcc/pulsar v1.1.0
 	github.com/sirupsen/logrus v1.9.3
