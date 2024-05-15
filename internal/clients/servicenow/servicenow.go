@@ -36,8 +36,11 @@ func (c *Client) ListOnCallUsers(s Schedule, layerSyncStyle config.SyncStyle) ([
 		var url = fmt.Sprintf("%s"+c.cfg.APIGetWhoIsOnCall, c.cfg.APIendpoint, shift.ID, shift.GroupID)
 		log.Debug(url)
 		response, err := client.Get(url)
-		if err != nil {
-			log.Error("error on servicenow request", err)
+		if err != nil || response.StatusCode != 200 {
+			log.Error("error on servicenow request", err, response, url)
+			if err == nil {
+				err = fmt.Errorf("error on servicenow request: %s", response.Status)
+			}
 			return []Member{}, err
 		}
 		defer response.Body.Close()
@@ -98,8 +101,11 @@ func (c *Client) ListSpans(s Schedule, groupID string) ([]Member, error) {
 	var url = fmt.Sprintf("%s"+c.cfg.APIGetSpans, c.cfg.APIendpoint, todaystr, groupID, tomorrowstr)
 	log.Debug(url)
 	response, err := client.Get(url)
-	if err != nil {
-		log.Error("error on servicenow request", err)
+	if err != nil || response.StatusCode != 200 {
+		log.Error("error on servicenow request", err, response, url)
+		if err == nil {
+			err = fmt.Errorf("error on servicenow request: %s", response.Status)
+		}
 		return []Member{}, err
 	}
 	defer response.Body.Close()
@@ -169,8 +175,11 @@ func (c *Client) ListScheduleMember(groupID string) ([]Member, error) {
 	var url = fmt.Sprintf("%s"+c.cfg.APIGetGroupMember, c.cfg.APIendpoint, groupID)
 	log.Debug(url)
 	response, err := client.Get(url)
-	if err != nil {
-		log.Error("error on servicenow request", err)
+	if err != nil || response.StatusCode != 200 {
+		log.Error("error on servicenow request: ", response, err, url)
+		if err == nil {
+			err = fmt.Errorf("error on servicenow request: %s", response.Status)
+		}
 		return []Member{}, err
 	}
 	defer response.Body.Close()
@@ -201,8 +210,11 @@ func (c *Client) ListSchedules(scheduleID string) (Schedule, error) {
 	var url = fmt.Sprintf("%s"+c.cfg.APIGetShifts, c.cfg.APIendpoint, scheduleID)
 	log.Debug(url)
 	response, err := client.Get(url)
-	if err != nil {
-		log.Error("error on servicenow request", err)
+	if err != nil || response.StatusCode != 200 {
+		log.Error("error on servicenow request: ", response, err, url)
+		if err == nil {
+			err = fmt.Errorf("error on servicenow request: %s", response.Status)
+		}
 		return Schedule{}, err
 	}
 	defer response.Body.Close()
@@ -233,22 +245,3 @@ func PrettyPrint(i interface{}) string {
 	}
 	return string(s)
 }
-
-/*
-// listOnCallUsers returns unique list of users for OnCalls
-func (c *Client) listOnCallUsers(onCalls []Member) (users []Member) {
-	//opts := pd.GetUserOptions{Includes: []string{"contact_methods"}}
-
-	distinctUsers := make(map[string]struct{})
-	for _, u := range onCalls {
-		if _, ok := distinctUsers[u.Name]; ok {
-			// duplicate user
-			log.Debugf("schedule: skipping duplicate onCall user %s", u.Name)
-			continue
-		}
-		distinctUsers[u.Name] = struct{}{}
-
-		users = append(users, u)
-	}
-	return users
-}*/

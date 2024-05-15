@@ -127,10 +127,10 @@ func (c *Client) MatchUsers(User []servicenow.Member) ([]slackgo.User, error) {
 	// if no pdUsers given, we don't need to filter
 	if User == nil {
 		log.Warn("empty schedule member list given!")
-		return nil, fmt.Errorf("empty PD user list; check shift schedule")
+		return nil, fmt.Errorf("empty schedule user list; check shift schedule")
 	}
 
-	// get all SLACK User Ids which are in our PD Group - some people are not in slack
+	// get all SLACK User Ids which are in our schedule group - some people are not in slack
 	userList := c.matchToSlackUsers(User)
 
 	log.Infof("slack: found #%v matching slack user(s) for #%v user(s) in schedule group", len(userList), len(User))
