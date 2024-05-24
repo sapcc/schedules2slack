@@ -17,6 +17,7 @@ type ObjectSyncType string
 
 const (
 	ScheduleSync ObjectSyncType = "Schedule"
+	TicketSync   ObjectSyncType = "Ticket"
 )
 
 type SyncJob interface {
@@ -41,7 +42,7 @@ type SyncJob interface {
 }
 
 // PostInfoMessage posts a message to slack with the current sync state of the job
-func PostInfoMessage(c *slackclient.Client, j *ServicenowScheduleToSlackJob) error {
+func PostSyncScheduleInfoMessage(c *slackclient.Client, j *ServicenowScheduleToSlackJob) error {
 	divSection := slack.NewDividerBlock()
 
 	sHeaderText := fmt.Sprintf("%s %s > Slack Handle: `%s`", j.Icon(), j.JobType(), j.SlackHandle())
@@ -98,4 +99,52 @@ func PostInfoMessage(c *slackclient.Client, j *ServicenowScheduleToSlackJob) err
 		return c.PostMessage(slack.MsgOptionBlocks(headerSection, errorSection, jobSection, divSection))
 	}
 	return c.PostMessage(slack.MsgOptionBlocks(headerSection, jobSection, divSection))
+}
+
+func PostTicketMessage(c *slackclient.Client, j *ServicenowTicketToSlackJob) error {
+
+	sHeaderText := fmt.Sprintf("%s %s > Slack Handle: `%s`", j.Icon(), j.JobType())
+	sContentText := fmt.Sprintf("%s %s > Slack Handle: `%s`", j.Icon(), j.JobType())
+	sUpdateText := fmt.Sprintf("*Last Update UTC:*\n%s", time.Now().UTC())
+
+	return c.PostMessage(
+		slack.MsgOptionBlocks(
+			slack.NewHeaderBlock(
+				slack.NewTextBlockObject(
+					slack.PlainTextType,
+					":alert: There is a Major Incident:",
+					true,
+					false,
+				),
+			),
+			slack.NewSectionBlock(
+				slack.NewTextBlockObject(
+					slack.MarkdownType,
+					sHeaderText,
+					true,
+					false),
+				nil,
+				nil,
+			),
+			slack.NewSectionBlock(
+				slack.NewTextBlockObject(
+					slack.MarkdownType,
+					sContentText,
+					false,
+					false),
+				nil,
+				nil,
+			),
+			slack.NewDividerBlock(),
+			slack.NewSectionBlock(
+				slack.NewTextBlockObject(
+					slack.MarkdownType,
+					sUpdateText,
+					false,
+					false),
+				nil,
+				nil,
+			),
+		),
+	)
 }

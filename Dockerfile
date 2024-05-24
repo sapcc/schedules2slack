@@ -24,5 +24,5 @@ LABEL source_repository="https://github.com/sapcc/schedules2slack" \
   org.opencontainers.image.version=${BININFO_VERSION}
 
 USER nobody:nobody
-WORKDIR /var/empty
+WORKDIR /run
 ENTRYPOINT [ "/run/schedules2slack", "-config", "/etc/config/config.yaml" ]
