@@ -1,8 +1,6 @@
 package slack
 
 import (
-	"github.com/sapcc/pulsar/pkg/auth"
-	"github.com/sapcc/pulsar/pkg/util"
 	"github.com/slack-go/slack"
 )
 
@@ -25,7 +23,6 @@ type Command interface {
 
 	// RequiredUserRole returns the UserRole required to run the command.
 	// Should at least return auth.UserRoles.Base .
-	RequiredUserRole() auth.UserRole
 
 	// Run executes the command and returns the response or an error.
 	Run(originalMsg *slack.Msg) (*slack.Msg, error)
@@ -42,7 +39,7 @@ func RegisterCommand(factory CommandFactory) {
 	f := factory()
 	for _, knownCommand := range availableCommands {
 		// Return here if the command is already registered (equal description or keywords or if it is marked as disabled.
-		if knownCommand().Describe() == f.Describe() || util.IsSlicesEqual(knownCommand().Keywords(), f.Keywords()) || f.IsDisabled() {
+		if knownCommand().Describe() == f.Describe() || f.IsDisabled() {
 			return
 		}
 	}

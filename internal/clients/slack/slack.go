@@ -81,9 +81,16 @@ func (c *Client) LoadMasterData() (err error) {
 	}
 	c.infoChannel = slackChannelsTemp
 
+	var slackUserListFiltered []slackgo.User
 	slackUserListTemp, err := c.botClient.GetUsers()
 	if err != nil {
 		return fmt.Errorf("slack: failed retrieving users: %w", err)
+	}
+	// just keep the active and non-bots
+	for _, user := range slackUserListTemp {
+		if !user.IsBot && user.Deleted == false {
+			slackUserListFiltered = append(slackUserListFiltered, user)
+		}
 	}
 
 	slackGrpsTemp, err := c.botClient.GetUserGroups(slackgo.GetUserGroupsOptionIncludeUsers(true))
@@ -93,7 +100,7 @@ func (c *Client) LoadMasterData() (err error) {
 
 	var mutex = &sync.Mutex{}
 	mutex.Lock()
-	c.users = slackUserListTemp
+	c.users = slackUserListFiltered
 	c.groups = slackGrpsTemp
 	mutex.Unlock()
 	log.Debug("slack: masterdata successfully updated")
@@ -253,14 +260,15 @@ func (c *Client) matchToSlackUsers(members []servicenow.Member) []slackgo.User {
 				continue
 			}
 			//if strings.EqualFold(m.Name, u.Profile.DisplayName) {
-
-			if extractEmployeeID(m.Name) == strings.ToUpper(u.Name) {
+			var user_id = extractEmployeeID(m.Name)
+			if user_id == strings.ToUpper(u.Name) || user_id == strings.ToUpper(u.RealName) || user_id == strings.ToUpper(u.Profile.RealName) || user_id == strings.ToUpper(u.Profile.FirstName) {
 				log.Debug(fmt.Sprintf("Found Slack user %s for schedule member %s", u.Profile.DisplayName, m.Name))
 				matchedSlackUsers = append(matchedSlackUsers, u)
-				continue
+				break
 			}
+			log.Debug(fmt.Sprintf("Didn't found Slack user for schedule member %s", m.Name))
 		}
-		log.Debug(fmt.Sprintf("Didn't found Slack user for schedule member %s", m.Name))
+
 	}
 	return matchedSlackUsers
 }
@@ -271,7 +279,7 @@ need a better way to match Names
 */
 func extractEmployeeID(input string) string {
 	// Define the regular expression with a capturing group
-	re := regexp.MustCompile(`([CID]\d{6})`)
+	re := regexp.MustCompile(`([CID]\d{6,})`)
 
 	// Find the first match
 	match := re.FindStringSubmatch(strings.ToUpper(input))

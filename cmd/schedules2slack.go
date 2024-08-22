@@ -51,6 +51,9 @@ func main() {
 		log.Fatal(err)
 	}
 
+	//slackEventBot, err := slackclient.NewEventBot(slackClient)
+	//slackEventBot.StartListening()
+
 	servicenowClient, err := servicenow.NewClient(&cfg.ServiceNow)
 	if err != nil {
 		log.Fatal(err)
@@ -87,12 +90,12 @@ func main() {
 			log.Fatalf("failed to create job: %s", err.Error())
 		}
 	}
-    for _, s := range cfg.Jobs.TicketSyncs {
-        job, err := jobs.NewTicketSyncJob(s, !cfg.Global.Write, servicenowClient, slackClient)
+	for _, s := range cfg.Jobs.TicketSyncs {
+		job, err := jobs.NewTicketSyncJob(s, !cfg.Global.Write, servicenowClient, slackClient)
 		if err != nil {
 			log.Fatalf("creating job to sync tickets '%s' failed: %s", s.SyncObjects.SlackGroupHandle, err.Error())
 		}
-        _, err = c.AddFunc(s.CrontabExpressionForRepetition, func() {
+		_, err = c.AddFunc(s.CrontabExpressionForRepetition, func() {
 			err := job.Run()
 			if err != nil {
 				log.Warnf("ticket_sync failed: %s", err.Error())
@@ -101,7 +104,7 @@ func main() {
 		if err != nil {
 			log.Fatalf("failed to create job: %s", err.Error())
 		}
-    }
+	}
 	go c.Start()
 	defer c.Stop()
 
