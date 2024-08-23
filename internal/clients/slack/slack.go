@@ -271,7 +271,7 @@ need a better way to match Names
 */
 func extractEmployeeID(input string) string {
 	// Define the regular expression with a capturing group
-	re := regexp.MustCompile(`([CID]\d{6})`)
+	re := regexp.MustCompile(`([CID]\d{6,})`)
 
 	// Find the first match
 	match := re.FindStringSubmatch(strings.ToUpper(input))
