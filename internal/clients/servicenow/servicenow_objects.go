@@ -20,6 +20,30 @@ type Schedule struct {
 	GroupID  string
 }
 
+
+type LinkObj struct {
+    Link string `json:"link"`
+    Value string `json:"value"`
+}
+
+//TicketObject
+type Ticket struct {
+    SysUpdateOn  string `json:"sys_updated_on"`
+    Number string `json:"number"`
+    Priority int `json:"priority"`
+    ShortDescription string `json:"short_description"`
+    SysClassName  string `json:"sys_class_name"`
+    AssignedTo  string `json:"assigned_to"`
+    ClosedAt string `json:"closed_at"`
+    OpenedAt  string `json:"opened_at"`
+    AssignmentGroupLink LinkObj `json:"assignment_group"`
+    Description string `json:"description"`//: "<br />Bridge Call URL: <a href=\"https://teams.microsoft.com/l/meetup-join/19%3ameeting_YjhhNTcwNDctNTJiMi00NWRiLWI1MjktMzNiYTRkZGVkYjAx%40thread.v2/0?context&#61;%7b%22Tid%22%3a%2242f7676c-f455-423c-82f6-dc2d99791af7%22%2c%22Oid%22%3a%221825333a-0083-4557-8827-e819758489aa%22%7d\" target=\"_blank\" rel=\"nofollow noopener noreferrer\">https://teams.microsoft.com/l/meetup-join/19%3ameeting_YjhhNTcwNDctNTJiMi00NWRiLWI1MjktMzNiYTRkZGVkYjAx%40thread.v2/0?context&#61;%7b%22Tid%22%3a%2242f7676c-f455-423c-82f6-dc2d99791af7%22%2c%22Oid%22%3a%221825333a-0083-4557-8827-e819758489aa%22%7d</a>",
+    SysId string `json:"sys_id"`
+    Urgency int `json:"urgency"`
+    UType string `json:"u_type"`
+    IncidentLink LinkObj `json:"incident"`
+}
+
 /*
 {'result':
 

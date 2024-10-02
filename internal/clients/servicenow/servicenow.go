@@ -238,6 +238,43 @@ func (c *Client) ListSchedules(scheduleID string) (Schedule, error) {
 
 	return s, nil
 }
+
+// Get Incidents or Incident_Tasks
+func (c *Client) ListTickets(sysParamQuery string, sysParamLimit int, ticketType config.TicketType) (*[]Ticket, error) {
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: c.cfg.TLSconfig,
+		},
+	}
+
+	var url = fmt.Sprintf("%s"+c.cfg.APIGetTable, c.cfg.APIendpoint, ticketType, sysParamQuery, sysParamLimit)
+	log.Debug(url)
+	response, err := client.Get(url)
+	if err != nil || response.StatusCode != 200 {
+		log.Error("error on servicenow request: ", err, " >" , response, "< " , url)
+		if err == nil {
+			err = fmt.Errorf("error on servicenow request: %s (check ticketType in config: %s)", response.Status, ticketType)
+			log.Error(err, url)
+		}
+		return &[]Ticket{}, err
+	}
+	defer response.Body.Close()
+
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		fmt.Println("Error parsing API response:", err)
+		return &[]Ticket{}, err
+	}
+
+	var result []Ticket
+	if err := json.Unmarshal(body, &result); err != nil { // Parse []byte to go struct pointer
+		log.Error("Can not unmarshal ServiceNow JSON")
+	}
+	fmt.Println(PrettyPrint(result))
+
+	return &result, nil
+}
+
 func PrettyPrint(i interface{}) string {
 	s, err := json.MarshalIndent(i, "", "\t")
 	if err != nil {
