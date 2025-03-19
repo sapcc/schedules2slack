@@ -1,4 +1,4 @@
-FROM golang:1.21.5-alpine3.19 as builder
+FROM golang:1.24.1-alpine3.21 as builder
 
 RUN apk add --no-cache gcc git make musl-dev
 
@@ -9,7 +9,7 @@ RUN make -C /src install PREFIX=/pkg
 
 ################################################################################
 
-FROM alpine:3.19
+FROM alpine:3.21
 LABEL org.opencontainers.image.authors="Tilo Geissler <tilo.geissler@sap.com>"
 LABEL source_repository="https://github.com/sapcc/schedules2slack"
 
