@@ -51,6 +51,7 @@ type ServiceNowConfig struct {
 	APIGetGroupMember string
 	APIGetWhoIsOnCall string
 	APIGetSpans       string
+	APIGetTable       string
 
 	TLSconfig *tls.Config
 }
@@ -58,12 +59,18 @@ type ServiceNowConfig struct {
 // JobsConfig Real Work Definition
 type JobsConfig struct {
 	ScheduleSyncs []ScheduleSync `yaml:"servicenow-schedules-on-duty-to-slack-group"`
+	TicketSyncs   []TicketSync   `yaml:"servicenow-ticket-to-slack-channel"`
 }
 
 type ScheduleSync struct {
 	CrontabExpressionForRepetition string              `yaml:"crontabExpressionForRepetition"`
 	SyncOptions                    ScheduleSyncOptions `yaml:"syncOptions"`
 	SyncObjects                    SyncObject          `yaml:"syncObjects"`
+}
+type TicketSync struct {
+	CrontabExpressionForRepetition string            `yaml:"crontabExpressionForRepetition"`
+	SyncOptions                    TicketSyncOptions `yaml:"syncOptions"`
+	SyncObjects                    SyncObject        `yaml:"syncObjects"`
 }
 
 // SyncObjects Struct
@@ -78,12 +85,24 @@ type ScheduleSyncOptions struct {
 	SyncStyle                                SyncStyle `yaml:"syncStyle"`
 }
 
+// ScheduleSyncOptions SyncOptions Struct
+type TicketSyncOptions struct {
+	SysParmQuery string     `yaml:"sysParmQuery"`
+	SysParmLimit int        `yaml:"sysParmLimit"`
+	TicketType   TicketType `yaml:"ticketType"`
+}
+
+// SyncStyle Type of which Layer (or combination) is used
+type TicketType string
+
 // SyncStyle Type of which Layer (or combination) is used
 type SyncStyle string
 
 const (
 	OnlyPrimary     = "OnlyPrimary"
 	AllActiveLayers = "AllActiveLayers"
+	Ticket          = "ticket"
+	TicketTask      = "ticket_task"
 )
 
 // NewConfig reads the configuration from the given filePath.
@@ -109,6 +128,7 @@ func NewConfig(configFilePath string) (cfg Config, err error) {
 	cfg.ServiceNow.APIGetGroupMember = "/api/now/on_call_rota/group/members/%s"
 	cfg.ServiceNow.APIGetWhoIsOnCall = "/api/now/on_call_rota/whoisoncall?rota_ids=%s&group_ids=%s"
 	cfg.ServiceNow.APIGetSpans = "/api/now/on_call_rota/spans?from=%s&group_ids=%s&to=%s&target_tz=UTC"
+	cfg.ServiceNow.APIGetTable = "/api/now/table/%s?sysparm_query=%s&sysparm_limit=%d"
 
 	return cfg, nil
 }
