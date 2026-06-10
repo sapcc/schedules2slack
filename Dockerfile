@@ -1,4 +1,4 @@
-FROM golang:1.24.1-alpine3.21 as builder
+FROM golang:1.25.11-alpine3.21 as builder
 
 RUN apk add --no-cache gcc git make musl-dev
 
