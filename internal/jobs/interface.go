@@ -81,15 +81,11 @@ func PostInfoMessage(c *slackclient.Client, j *ServicenowScheduleToSlackJob) err
 	fields = append(fields, &slack.TextBlockObject{
 		Type:     slack.MarkdownType,
 		Text:     fmt.Sprintf("*Who is on shift:*\n - %s", strings.Join(sL, ",\n - ")),
-		Emoji:    false,
-		Verbatim: false,
 	})
 
 	fields = append(fields, &slack.TextBlockObject{
 		Type:     slack.MarkdownType,
 		Text:     fmt.Sprintf(":alarm_clock: *Next run:* %s", j.NextRun().Format(time.RFC822)),
-		Emoji:    false,
-		Verbatim: false,
 	})
 	//jobSection := slack.NewSectionBlock(jobText, fields, nil)
 	jobSection := slack.NewSectionBlock(nil, fields, nil)
