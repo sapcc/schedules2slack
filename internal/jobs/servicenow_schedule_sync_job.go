@@ -43,6 +43,8 @@ type ServicenowScheduleToSlackJob struct {
 	scheduleGroupID    string              // IDs of the schedules to sync
 	dutyChannelID      string              // channel to post on-/off-duty notifications
 	servicenowSchedule servicenow.Schedule // servicenow schedule
+	groupDisabled      bool                // true when group was disabled by this job
+	lastRun            time.Time           // time of the last completed run
 
 	syncjob SyncJob
 }
@@ -86,11 +88,13 @@ func (s *ServicenowScheduleToSlackJob) Run() error {
 					s.err = err
 					return fmt.Errorf("job: disabling slack group %s failed: %w", s.slackHandle, err)
 				}
+				s.groupDisabled = true
 				s.postDutyNotification(fmt.Sprintf("<!subteam^%s> is out of duty", currentGroup.ID))
 			} else {
 				log.Infof("job: dry run — would disable group '%s' and post out-of-duty notice", s.slackHandle)
 			}
 		}
+		s.lastRun = time.Now()
 		return nil
 	}
 
@@ -100,11 +104,13 @@ func (s *ServicenowScheduleToSlackJob) Run() error {
 		s.err = err
 		return fmt.Errorf("job: adding OnDuty members to slack group %s failed: %w", s.slackHandle, err)
 	}
+	s.groupDisabled = false
 
 	if groupWasDisabled && !s.dryrun && s.dutyChannelID != "" {
 		s.postDutyNotification(fmt.Sprintf("<!subteam^%s> is online", currentGroup.ID))
 	}
 
+	s.lastRun = time.Now()
 	return nil
 }
 
@@ -151,4 +157,20 @@ func (s *ServicenowScheduleToSlackJob) NextRun() time.Time {
 // Error if any occurred during the sync
 func (s *ServicenowScheduleToSlackJob) Error() error {
 	return s.err
+}
+
+// JobState returns a snapshot of the current job state for the App Home view.
+func (s *ServicenowScheduleToSlackJob) JobState() slackclient.JobState {
+	var onShift []string
+	for _, m := range s.servicenowSchedule.OnOnCall {
+		onShift = append(onShift, m.SlackDisplayValue)
+	}
+	return slackclient.JobState{
+		SlackHandle: s.slackHandle,
+		OnShift:     onShift,
+		Disabled:    s.groupDisabled,
+		LastRun:     s.lastRun,
+		NextRun:     s.NextRun(),
+		Err:         s.err,
+	}
 }

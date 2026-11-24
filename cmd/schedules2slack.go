@@ -51,6 +51,9 @@ func main() {
 		log.Fatal(err)
 	}
 
+	jobStore := slackclient.NewJobStateStore()
+	go slackClient.StartSocketMode(cfg.Slack.AppLevelToken, jobStore)
+
 	servicenowClient, err := servicenow.NewClient(&cfg.ServiceNow)
 	if err != nil {
 		log.Fatal(err)
@@ -78,6 +81,8 @@ func main() {
 			if err != nil {
 				log.Warnf("schedule_sync failed: %s", err.Error())
 			}
+
+			jobStore.Update(job.JobState())
 
 			if err = jobs.PostInfoMessage(slackClient, job); err != nil {
 				log.Warnf("posting update to slack failed: %s", err.Error())
