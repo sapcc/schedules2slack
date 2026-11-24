@@ -29,6 +29,20 @@ func newAPIClient(token string, options ...slackgo.Option) (*slackgo.Client, err
 	return c, err
 }
 
+// NewTextMessage returns a MsgOption for a plain markdown text message
+func NewTextMessage(text string) slackgo.MsgOption {
+	block := slackgo.NewSectionBlock(slackgo.NewTextBlockObject(slackgo.MarkdownType, text, false, false), nil, nil)
+	return slackgo.MsgOptionBlocks(block)
+}
+
+// PostToChannel posts a message to the given channel ID
+func (c *Client) PostToChannel(channelID string, opts slackgo.MsgOption) error {
+	if _, _, err := c.botClient.PostMessage(channelID, opts); err != nil {
+		return fmt.Errorf("slack: failed posting message to channel %s: %w", channelID, err)
+	}
+	return nil
+}
+
 // PostBlocksMessage takes the blocks and sends them to the default info channel
 func (c *Client) PostBlocksMessage(blocks ...slackgo.Block) error {
 	opts := slackgo.MsgOptionBlocks(blocks...)

@@ -22,6 +22,7 @@ func NewScheduleSyncJob(cfg config.ScheduleSync, dryrun bool, sn *servicenow.Cli
 		dryrun:           dryrun,
 		slackHandle:      cfg.SyncObjects.SlackGroupHandle,
 		scheduleGroupID:  cfg.SyncObjects.GroupID,
+		dutyChannelID:    cfg.DutyChannelID,
 		schedule:         schedule,
 		servicenowClient: sn,
 		slackClient:      slackClient,
@@ -40,6 +41,7 @@ type ServicenowScheduleToSlackJob struct {
 
 	slackHandle        string              // of the target user group
 	scheduleGroupID    string              // IDs of the schedules to sync
+	dutyChannelID      string              // channel to post on-/off-duty notifications
 	servicenowSchedule servicenow.Schedule // servicenow schedule
 
 	syncjob SyncJob
@@ -49,12 +51,6 @@ type ServicenowScheduleToSlackJob struct {
 func (s *ServicenowScheduleToSlackJob) Run() error {
 	log.Info(s.Name())
 	s.err = nil
-
-	/*schedule, err := s.servicenowClient.ListSchedules(s.scheduleGroupId)
-	if err != nil {
-		s.err = err
-		return err
-	}*/
 
 	groupmember, err := s.servicenowClient.ListScheduleMember(s.scheduleGroupID)
 	if err != nil {
@@ -70,19 +66,56 @@ func (s *ServicenowScheduleToSlackJob) Run() error {
 	}
 	s.servicenowSchedule.OnOnCall = onCallMember
 
-	// get all SLACK users, bcz. we need the SLACK user id and match them with the ldap users
 	slackUsers, err := s.slackClient.MatchUsers(onCallMember)
-	if err != nil {
+	if err != nil && len(onCallMember) > 0 {
 		s.err = err
 		return err
 	}
 
-	// put ldap users which also have a slack account to our slack group (who's not in the ldap group is out)
+	currentGroup, err := s.slackClient.GetSlackGroup(s.slackHandle)
+	if err != nil {
+		s.err = err
+		return fmt.Errorf("job: retrieving slack group %s failed: %w", s.slackHandle, err)
+	}
+
+	if len(slackUsers) == 0 && s.syncOpts.DisableSlackHandleTemporaryIfNoneOnShift {
+		groupWasActive := currentGroup.DateDelete.String() == "0"
+		if groupWasActive {
+			if !s.dryrun {
+				if err = s.slackClient.DisableGroup(currentGroup.ID); err != nil {
+					s.err = err
+					return fmt.Errorf("job: disabling slack group %s failed: %w", s.slackHandle, err)
+				}
+				s.postDutyNotification(fmt.Sprintf("<!subteam^%s> is out of duty", currentGroup.ID))
+			} else {
+				log.Infof("job: dry run — would disable group '%s' and post out-of-duty notice", s.slackHandle)
+			}
+		}
+		return nil
+	}
+
+	groupWasDisabled := currentGroup.DateDelete.String() != "0"
+
 	if _, err = s.slackClient.AddToGroup(s.slackHandle, slackUsers, s.dryrun); err != nil {
 		s.err = err
 		return fmt.Errorf("job: adding OnDuty members to slack group %s failed: %w", s.slackHandle, err)
 	}
+
+	if groupWasDisabled && !s.dryrun && s.dutyChannelID != "" {
+		s.postDutyNotification(fmt.Sprintf("<!subteam^%s> is online", currentGroup.ID))
+	}
+
 	return nil
+}
+
+func (s *ServicenowScheduleToSlackJob) postDutyNotification(text string) {
+	if s.dutyChannelID == "" {
+		return
+	}
+	msg := slackclient.NewTextMessage(text)
+	if err := s.slackClient.PostToChannel(s.dutyChannelID, msg); err != nil {
+		log.Warnf("job: posting duty notification failed: %s", err)
+	}
 }
 
 // Name of the job
