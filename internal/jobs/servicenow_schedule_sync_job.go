@@ -81,8 +81,7 @@ func (s *ServicenowScheduleToSlackJob) Run() error {
 	}
 
 	if len(slackUsers) == 0 && s.syncOpts.DisableSlackHandleTemporaryIfNoneOnShift {
-		groupWasActive := currentGroup.DateDelete.String() == "0"
-		if groupWasActive {
+		if slackclient.GroupIsActive(currentGroup) {
 			if !s.dryrun {
 				if err = s.slackClient.DisableGroup(currentGroup.ID); err != nil {
 					s.err = err
@@ -98,9 +97,9 @@ func (s *ServicenowScheduleToSlackJob) Run() error {
 		return nil
 	}
 
-	groupWasDisabled := currentGroup.DateDelete.String() != "0"
+	groupWasDisabled := !slackclient.GroupIsActive(currentGroup)
 
-	if _, err = s.slackClient.AddToGroup(s.slackHandle, slackUsers, s.dryrun); err != nil {
+	if _, err = s.slackClient.AddToGroup(currentGroup, slackUsers, s.dryrun); err != nil {
 		s.err = err
 		return fmt.Errorf("job: adding OnDuty members to slack group %s failed: %w", s.slackHandle, err)
 	}

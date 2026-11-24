@@ -1,6 +1,7 @@
 package slack
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"sync"
@@ -49,8 +50,8 @@ func (s *JobStateStore) All() []*JobState {
 }
 
 // StartSocketMode starts the Socket Mode event loop and handles app_home_opened events.
-// It blocks until the connection is closed, so callers should run it in a goroutine.
-func (c *Client) StartSocketMode(appToken string, store *JobStateStore) {
+// It blocks until ctx is cancelled or the connection is closed.
+func (c *Client) StartSocketMode(ctx context.Context, appToken string, store *JobStateStore) {
 	if appToken == "" {
 		log.Warn("slack: SLACK_APP_TOKEN not set, App Home view disabled")
 		return
@@ -82,7 +83,7 @@ func (c *Client) StartSocketMode(appToken string, store *JobStateStore) {
 	})
 
 	log.Info("slack: starting Socket Mode event loop")
-	if err := handler.RunEventLoop(); err != nil {
+	if err := handler.RunEventLoopContext(ctx); err != nil && ctx.Err() == nil {
 		log.Errorf("slack: Socket Mode event loop exited: %s", err)
 	}
 }

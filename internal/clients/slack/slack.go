@@ -151,15 +151,10 @@ func (c *Client) MatchUsers(User []servicenow.Member) ([]slackgo.User, error) {
 	return userList, nil
 }
 
-// AddToGroup sets an array of Slack User to an Slack Group (found by name), returns true if noop
-func (c *Client) AddToGroup(groupHandle string, slackUsers []slackgo.User, dryrun bool) (noChange bool, err error) {
+// AddToGroup sets an array of Slack User to an Slack Group, returns true if noop.
+// The caller must pass the current group state (from GetSlackGroup) to avoid a redundant lookup.
+func (c *Client) AddToGroup(userGroupBefore slackgo.UserGroup, slackUsers []slackgo.User, dryrun bool) (noChange bool, err error) {
 	noChange = true
-
-	// get the group we are interested in
-	userGroupBefore, err := c.GetSlackGroup(groupHandle)
-	if err != nil {
-		return true, fmt.Errorf("slack: retrieving slack group '%s' failed: %w", groupHandle, err)
-	}
 
 	if len(slackUsers) == 0 {
 		return true, fmt.Errorf("slack: user list empty; no update done")
@@ -197,7 +192,7 @@ func (c *Client) AddToGroup(groupHandle string, slackUsers []slackgo.User, dryru
 
 		log.Infof("slack: updated %s successfully", userGroupAfter.Name)
 
-		if userGroupAfter.DateDelete.String() == "" {
+		if GroupIsActive(userGroupAfter) {
 			_, err = c.userClient.EnableUserGroup(userGroupAfter.ID)
 			if err != nil {
 				return noChange, fmt.Errorf("slack: enabling user group %s[%s] failed: %s", userGroupBefore.Name, userGroupBefore.ID, err.Error())
@@ -238,6 +233,11 @@ func (c *Client) DisableGroup(groupID string) error {
 	}
 	log.Infof("slack: disabled slack user group %s[%s]", userGroup.Name, userGroup.ID)
 	return nil
+}
+
+// GroupIsActive returns true if the user group has not been disabled/deleted.
+func GroupIsActive(g slackgo.UserGroup) bool {
+	return g.DateDelete.Time().IsZero()
 }
 
 // groupContainsUser returns true user is contained in the groupUserIDs

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"crypto/tls"
 	"encoding/base64"
 	"encoding/pem"
@@ -52,7 +53,9 @@ func main() {
 	}
 
 	jobStore := slackclient.NewJobStateStore()
-	go slackClient.StartSocketMode(cfg.Slack.AppLevelToken, jobStore)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	go slackClient.StartSocketMode(ctx, cfg.Slack.AppLevelToken, jobStore)
 
 	servicenowClient, err := servicenow.NewClient(&cfg.ServiceNow)
 	if err != nil {
