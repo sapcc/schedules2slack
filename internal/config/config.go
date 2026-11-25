@@ -36,6 +36,7 @@ type SlackConfig struct {
 	// Token to authenticate
 	BotSecurityToken  string
 	UserSecurityToken string
+	AppLevelToken     string
 	InfoChannelID     string `yaml:"infoChannelID"`
 	Workspace         string `yaml:"workspaceForChatLinks"`
 }
@@ -64,6 +65,7 @@ type ScheduleSync struct {
 	CrontabExpressionForRepetition string              `yaml:"crontabExpressionForRepetition"`
 	SyncOptions                    ScheduleSyncOptions `yaml:"syncOptions"`
 	SyncObjects                    SyncObject          `yaml:"syncObjects"`
+	DutyChannelID                  string              `yaml:"dutyChannelID"`
 }
 
 // SyncObjects Struct
@@ -124,6 +126,8 @@ func loadEnvVars(cfg *Config) error {
 	if cfg.Slack.UserSecurityToken == "" {
 		return fmt.Errorf("env variable `SLACK_USER_TOKEN` is not set")
 	}
+
+	cfg.Slack.AppLevelToken = os.Getenv("SLACK_APP_TOKEN")
 
 	cfg.ServiceNow.PfxCertFile = os.Getenv("SERVICENOW_API_CERT_PKC12")
 	/*if cfg.ServiceNow.PfxCertFile == "" {

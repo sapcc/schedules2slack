@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"crypto/tls"
 	"encoding/base64"
 	"encoding/pem"
@@ -51,6 +52,11 @@ func main() {
 		log.Fatal(err)
 	}
 
+	jobStore := slackclient.NewJobStateStore()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	go slackClient.StartSocketMode(ctx, cfg.Slack.AppLevelToken, jobStore)
+
 	servicenowClient, err := servicenow.NewClient(&cfg.ServiceNow)
 	if err != nil {
 		log.Fatal(err)
@@ -78,6 +84,8 @@ func main() {
 			if err != nil {
 				log.Warnf("schedule_sync failed: %s", err.Error())
 			}
+
+			jobStore.Update(job.JobState())
 
 			if err = jobs.PostInfoMessage(slackClient, job); err != nil {
 				log.Warnf("posting update to slack failed: %s", err.Error())
